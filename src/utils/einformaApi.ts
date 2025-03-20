@@ -23,11 +23,13 @@ export const queryEinformaApi = async (
   credentials: ApiCredentials
 ): Promise<any> => {
   try {
-    // This is where you would construct the URL and fetch data from einforma.com API
-    // As per your request, we'll use the clientId and clientSecret provided
+    console.log('Querying einforma API with:', queryParams);
+    console.log('Using credentials:', credentials.clientId);
     
-    // Base URL for the einforma API
-    const baseUrl = `https://${credentials.clientId}`;
+    // Extract the domain from clientId (it's the full URL)
+    const baseUrl = credentials.clientId.startsWith('http') 
+      ? credentials.clientId 
+      : `https://${credentials.clientId}`;
     
     // Convert queryParams to URL search params
     const params = new URLSearchParams();
@@ -36,6 +38,7 @@ export const queryEinformaApi = async (
     });
     
     const url = `${baseUrl}?${params.toString()}`;
+    console.log('Request URL:', url);
     
     // Make the API request
     const response = await fetch(url, {

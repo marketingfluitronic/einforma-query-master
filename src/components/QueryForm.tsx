@@ -14,7 +14,7 @@ import {
 import { SearchIcon, Database } from 'lucide-react';
 import GlassCard from './GlassCard';
 import { useApi } from '@/contexts/ApiContext';
-import { mockQueryEinformaApi, queryEinformaApi } from '@/utils/einformaApi';
+import { queryEinformaApi } from '@/utils/einformaApi';
 import { toast } from 'sonner';
 
 const QueryForm: React.FC = () => {
@@ -35,6 +35,11 @@ const QueryForm: React.FC = () => {
       return;
     }
     
+    if (!credentials) {
+      toast.error('No hay credenciales de API configuradas');
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -45,9 +50,8 @@ const QueryForm: React.FC = () => {
         ...(sector ? { sector } : {}),
       };
       
-      // Use mock API for demo purposes
-      // In a real implementation, you would use credentials here
-      await mockQueryEinformaApi(queryParams);
+      // Use the real API connection with credentials
+      await queryEinformaApi(queryParams, credentials);
       
       // Redirect to results page
       navigate('/results');
