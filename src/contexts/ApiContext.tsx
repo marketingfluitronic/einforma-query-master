@@ -65,10 +65,11 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const setUseMockData = (useMock: boolean) => {
     localStorage.setItem('useMockData', JSON.stringify(useMock));
     setUseMockDataState(useMock);
-    toast.info(useMock 
-      ? 'Usando datos simulados para demostración' 
-      : 'Intentando usar la API real (requiere proxy para CORS)'
-    );
+    if (useMock) {
+      toast.info('Usando datos simulados para demostración');
+    } else {
+      toast.info('Intentando usar la API real con múltiples proxies CORS para evitar restricciones');
+    }
   };
 
   return (

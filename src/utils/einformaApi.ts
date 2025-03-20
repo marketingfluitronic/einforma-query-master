@@ -37,9 +37,11 @@ export const queryEinformaApi = async (
       return await mockQueryEinformaApi(queryParams);
     }
     
-    // Extract the domain from clientId
+    console.log('Attempting to use real API data via proxy...');
+    
+    // Extract the domain from clientId or use it directly
     const baseUrl = credentials.clientId.includes('.api.einforma.com') 
-      ? `https://${credentials.clientId}`
+      ? `https://${credentials.clientId.split('.api.einforma.com')[0]}.api.einforma.com`
       : credentials.clientId;
     
     // Convert queryParams to URL search params
@@ -75,7 +77,7 @@ export const queryEinformaApi = async (
       return data;
     } catch (error) {
       console.error('API proxy request failed:', error);
-      toast.error('Error al acceder a la API: Probablemente problemas con el proxy o CORS');
+      toast.error('Error al acceder a la API: Los proxies CORS no pudieron conectarse al servidor');
       
       // Fallback to mock data
       console.log('Fallback to mock data after API error');
