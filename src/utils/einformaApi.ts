@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import { proxyFetch } from './apiProxy';
 
 interface ApiCredentials {
   clientId: string;
@@ -26,20 +27,20 @@ export const queryEinformaApi = async (
     console.log('Querying einforma API with:', queryParams);
     console.log('Using credentials:', credentials.clientId);
     
-    // Due to CORS restrictions, we need to use the mock API for demonstration
-    // In a real-world scenario, this would be handled by a backend proxy
-    console.log('CORS restrictions prevent direct API access. Using mock data for demonstration.');
-    toast.info('Using mock data due to CORS restrictions. In production, this would use a backend proxy.');
+    const { useMockData } = window.localStorage.getItem('useMockData') 
+      ? { useMockData: JSON.parse(window.localStorage.getItem('useMockData') || 'true') } 
+      : { useMockData: true };
     
-    // Use the mock function instead
-    return await mockQueryEinformaApi(queryParams);
+    if (useMockData) {
+      console.log('Using mock data for demonstration');
+      toast.info('Usando datos simulados para demostración. En un entorno real, esto usaría la API de einforma.');
+      return await mockQueryEinformaApi(queryParams);
+    }
     
-    /* 
-    // This code would work with a proper backend proxy or if CORS is configured on the API side
-    // Extract the domain from clientId (it's the full URL)
-    const baseUrl = credentials.clientId.startsWith('http') 
-      ? credentials.clientId 
-      : `https://${credentials.clientId}`;
+    // Extract the domain from clientId
+    const baseUrl = credentials.clientId.includes('.api.einforma.com') 
+      ? `https://${credentials.clientId}`
+      : credentials.clientId;
     
     // Convert queryParams to URL search params
     const params = new URLSearchParams();
@@ -50,36 +51,43 @@ export const queryEinformaApi = async (
     const url = `${baseUrl}?${params.toString()}`;
     console.log('Request URL:', url);
     
-    // Make the API request
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
+    // Prepare authorization header
+    const authHeader = `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`;
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error('API request failed:', errorData || response.statusText);
-      throw new Error(errorData?.message || `Request failed with status ${response.status}`);
+    // Make the API request through our proxy
+    try {
+      const response = await proxyFetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      console.log('API response:', data);
+      
+      // Store the results for display
+      lastQueryResults = data;
+      
+      toast.success('Datos recibidos correctamente de einforma API');
+      return data;
+    } catch (error) {
+      console.error('API proxy request failed:', error);
+      toast.error('Error al acceder a la API: Probablemente problemas con el proxy o CORS');
+      
+      // Fallback to mock data
+      console.log('Fallback to mock data after API error');
+      toast.info('Utilizando datos de muestra como alternativa');
+      return await mockQueryEinformaApi(queryParams);
     }
-    
-    const data = await response.json();
-    console.log('API response:', data);
-    
-    // Store the results for display
-    lastQueryResults = data;
-    
-    return data;
-    */
   } catch (error) {
     console.error('Error querying einforma API:', error);
     if (error instanceof Error) {
-      toast.error(error.message || 'Error querying einforma API');
+      toast.error(error.message || 'Error al consultar la API de einforma');
     } else {
-      toast.error('Unknown error occurred while querying einforma API');
+      toast.error('Error desconocido al consultar la API de einforma');
     }
     throw error;
   }

@@ -11,15 +11,16 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { SearchIcon, Database } from 'lucide-react';
+import { SearchIcon, Database, AlertCircle } from 'lucide-react';
 import GlassCard from './GlassCard';
 import { useApi } from '@/contexts/ApiContext';
 import { queryEinformaApi } from '@/utils/einformaApi';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 
 const QueryForm: React.FC = () => {
   const navigate = useNavigate();
-  const { credentials } = useApi();
+  const { credentials, useMockData, setUseMockData } = useApi();
   const [loading, setLoading] = useState(false);
   
   const [queryType, setQueryType] = useState('company');
@@ -66,6 +67,22 @@ const QueryForm: React.FC = () => {
     <GlassCard className="p-6 w-full max-w-lg" animateIn>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-sm font-medium">Modo de datos</div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-500">Simulados</span>
+              <Switch 
+                checked={!useMockData} 
+                onCheckedChange={(checked) => setUseMockData(!checked)} 
+                className="data-[state=checked]:bg-einforma-500"
+              />
+              <span className="text-xs text-gray-500">Reales</span>
+              <div className="ml-1 text-amber-500 cursor-help" title="Las llamadas a la API real pueden fallar debido a restricciones CORS. Se utilizará un proxy para intentar evitarlo.">
+                <AlertCircle size={16} />
+              </div>
+            </div>
+          </div>
+          
           <div className="space-y-2">
             <Label htmlFor="queryType">Tipo de búsqueda</Label>
             <Select
