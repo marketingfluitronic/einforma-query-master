@@ -26,6 +26,16 @@ export const queryEinformaApi = async (
     console.log('Querying einforma API with:', queryParams);
     console.log('Using credentials:', credentials.clientId);
     
+    // Due to CORS restrictions, we need to use the mock API for demonstration
+    // In a real-world scenario, this would be handled by a backend proxy
+    console.log('CORS restrictions prevent direct API access. Using mock data for demonstration.');
+    toast.info('Using mock data due to CORS restrictions. In production, this would use a backend proxy.');
+    
+    // Use the mock function instead
+    return await mockQueryEinformaApi(queryParams);
+    
+    /* 
+    // This code would work with a proper backend proxy or if CORS is configured on the API side
     // Extract the domain from clientId (it's the full URL)
     const baseUrl = credentials.clientId.startsWith('http') 
       ? credentials.clientId 
@@ -63,6 +73,7 @@ export const queryEinformaApi = async (
     lastQueryResults = data;
     
     return data;
+    */
   } catch (error) {
     console.error('Error querying einforma API:', error);
     if (error instanceof Error) {

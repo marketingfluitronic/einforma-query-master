@@ -12,6 +12,8 @@ interface ApiContextType {
   setCredentials: (credentials: ApiCredentials) => void;
   clearCredentials: () => void;
   isAuthenticated: boolean;
+  useMockData: boolean;
+  setUseMockData: (useMock: boolean) => void;
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ const ApiContext = createContext<ApiContextType | undefined>(undefined);
 export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [credentials, setCredentialsState] = useState<ApiCredentials | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [useMockData, setUseMockData] = useState<boolean>(true);
 
   // Load credentials from localStorage on initial render
   useEffect(() => {
@@ -61,6 +64,8 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCredentials,
         clearCredentials,
         isAuthenticated,
+        useMockData,
+        setUseMockData,
       }}
     >
       {children}
